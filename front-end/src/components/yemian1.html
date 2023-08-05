@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>植物病虫害识别平台</title>
+  <style type="text/css">
+    /* 清除默认样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial;
+    }
+
+    /* 页面背景色 */
+    body {
+      background-color: #eee;
+    }
+
+    /* 页面标题 */
+    h1 {
+      text-align: center;
+      font-size: 36px;
+      padding: 20px 0;
+    }
+
+    /* 图片上传区域 */
+    .container {
+        width: 85%;
+        height: 800px;
+        background-color: #ffffff;
+        margin: 15px auto;
+        display: flex;
+        min-width: 1200px;
+    }
+
+    /* 上传按钮 */
+    .upload {
+        position: relative;
+        margin: 0px 0px;
+    }
+
+    .upload input[type="file"] {
+      display: none;
+    }
+
+    .upload label {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #4c99d5;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    .upload label:hover {
+      background-color: #3f82bb;
+    }
+
+    /* 图像类别区域 */
+    .output {
+      margin-top: 50px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px #ccc;
+      padding: 30px;
+      text-align: center;
+      font-size: 24px;
+    }
+
+    .output img {
+      display: block;
+      margin: 20px auto;
+      max-width: 100%;
+      max-height: 300px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>植物病虫害识别平台</h1>
+
+  <div class="container">
+    <div class="upload">
+      <form id="upload-form">
+        <label for="image-upload">上传图片</label>
+        <input type="file" id="image-upload">
+      </form>
+    </div>
+    <div class="output" id="output"></div>
+  </div>
+
+  <script type="text/javascript">
+    const form = document.getElementById('upload-form');
+    const input = document.getElementById('image-upload');
+    const output = document.getElementById('output');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        // 将图像显示在页面上
+        output.innerHTML = `<img src="${e.target.result}">`;
+        // 发送图像到后端进行图像识别
+        fetch('/image-classification', {
+            method: 'POST',
+            body: JSON.stringify({
+              image: e.target.result
+            }),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            // 将图像类别显示在页面上
+            output.innerHTML += `<p>图像类别为 ${data.class}</p>`;
+          })
+          .catch(error => console.error(error));
+      }
+      reader.readAsDataURL(file);
+    });
+  </script>
+</body>
+
+</html>
